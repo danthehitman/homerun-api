@@ -1,28 +1,48 @@
 var express = require('express'),
+  https = require('https'),
+  fs = require('fs'),
   app = express(),
   port = process.env.PORT || 3000,
   mongoose = require('mongoose'),
-  Task = require('./api/models/userModel'), //created model loading here
-  bodyParser = require('body-parser');
+  
+  user = require('./api/models/userModel'),
+  token = require('./api/models/tokenModel'),
+
+  bodyParser = require('body-parser'),
+  tokenRouter = require('./api/routes/tokenRouter')
+  
   
 // mongoose instance connection url connection
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/homerun'); 
 
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
-var routes = require('./api/routes/userRoutes'); //importing route
-routes(app); //register the route
+//TODO: Create a "pipeline" of middleware adn pass it to the routers for create?
+app.use('/tokens', tokenRouter);
 
+var userRouter = require('./api/routes/userRoutes');
+userRouter(app);
 
-app.listen(port);
+https.createServer({
+  key: fs.readFileSync('../devcerts/server.key'),
+  cert: fs.readFileSync('../devcerts/server.cert')
+}, app)
+.listen(port, function () {
+  console.log('Homerun server started on: ' + port + ' Go to https://localhost:' + port + '/')
+})
 
 app.use(function(req, res) {
   res.status(404).send({url: req.originalUrl + ' not found'})
 });
 
+app.use((err, request, response, next) => {
+  // log the error, for now just console.log
+  console.log(err)
+  response.status(500).send('Something broke! : ' + err)
+})
 
-console.log('Homerun server started on: ' + port);
+
+console.log('Homerun server started successfully.');

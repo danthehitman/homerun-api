@@ -1,54 +1,49 @@
 'use strict';
 
-
 var mongoose = require('mongoose'),
-  user = mongoose.model('Users');
+  user = mongoose.model('user'),
+  bcrypt = require('bcrypt');
 
-exports.list_all_users = function(req, res) {
-  user.find({}, function(err, user) {
+exports.list_all_users = (req, res) => {
+  user.find({}, function (err, user) {
     if (err)
       res.send(err);
     res.json(user);
   });
 };
 
-
-
-
-exports.create_a_user = function(req, res) {
+exports.create_a_user = (req, res) => {  
   var new_user = new user(req.body);
-  new_user.save(function(err, user) {
+  bcrypt.hash(new_user.password, 10, (err, hash) => {
+    new_user.password = hash;
+    new_user.save(function (err, user) {
+      if (err)
+        res.send(err);
+      res.json(user);
+    });
+  });
+};
+
+exports.read_a_user = (req, res) => {
+  user.findById(req.params.userId, function (err, user) {
     if (err)
       res.send(err);
     res.json(user);
   });
 };
 
-
-exports.read_a_user = function(req, res) {
-  user.findById(req.params.userId, function(err, user) {
+exports.update_a_user = (req, res) => {
+  user.findOneAndUpdate({ _id: req.params.userId }, req.body, { new: true }, function (err, user) {
     if (err)
       res.send(err);
     res.json(user);
   });
 };
 
-
-exports.update_a_user = function(req, res) {
-  user.findOneAndUpdate({_id: req.params.userId}, req.body, {new: true}, function(err, user) {
-    if (err)
-      res.send(err);
-    res.json(user);
-  });
-};
-
-
-exports.delete_a_user = function(req, res) {
-
-
+exports.delete_a_user = (req, res) => {
   user.deleteOne({
     _id: req.params.userId
-  }, function(err, user) {
+  }, function (err, user) {
     if (err)
       res.send(err);
     res.json({ message: 'user successfully deleted' });

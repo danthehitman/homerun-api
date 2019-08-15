@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 
-var UserSchema = new Schema({
+var userSchema = new Schema({
   firstName: {
     type: String,
     required: 'First name'
@@ -15,6 +15,14 @@ var UserSchema = new Schema({
   birthDate: {
     type: Date,
     required: 'Birthday'
+  },
+  email: {
+    type: String,
+    required: 'Email'
+  },
+  password: {
+    type: String,
+    required: 'password'
   },
   createdDate: {
     type: Date,
@@ -29,4 +37,8 @@ var UserSchema = new Schema({
   }
 });
 
-module.exports = mongoose.model('Users', UserSchema);
+userSchema.query.byEmail = function (email) {
+  return this.where({'email' : new RegExp(email, 'i')})
+};
+
+module.exports = mongoose.model('user', userSchema);
