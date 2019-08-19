@@ -1,9 +1,8 @@
-'use strict';
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
 
+const {Schema} = mongoose;
 
-var userSchema = new Schema({
+const userModel = new Schema({
   firstName: {
     type: String,
     required: 'First name'
@@ -16,7 +15,7 @@ var userSchema = new Schema({
     type: Date,
     required: 'Birthday'
   },
-  email: {
+  username: {
     type: String,
     required: 'Email'
   },
@@ -37,8 +36,4 @@ var userSchema = new Schema({
   }
 });
 
-userSchema.query.byEmail = function (email) {
-  return this.where({'email' : new RegExp(email, 'i')})
-};
-
-module.exports = mongoose.model('user', userSchema);
+module.exports = mongoose.model('user', userModel);
