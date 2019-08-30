@@ -1,62 +1,62 @@
-function usersController(User) {
-  function get (req, res) {
+function usersController(UserModel) {
+
+  get = async (req, res, next) => {
     const {query} = req;
-    User.find(query, (err, users) => {
-      if (err) {
-        return res.send(err);
-      }
-      return res.json(users);
-    });
+    try {
+      return res.json(await(UserModel.find(query)));
+    } catch(err) {
+     return next(err);
+    }
   }
 
-  function getUsers(req, res) {
-    return res.send(req.user);
+  getUser = async (req, res) => {
+    return res.send(req.requestedResource);
   }
 
-  function post(req, res) {
-    const user = new User(req.body);
-    user.save((err) => {
-      if (err) { 
-        return res.send(err);
-      }
+  post = async (req, res) => {
+    try {
+      const user = new UserModel(req.body);
+      user = await user.save();
       return res.status(201).json(user);
-    });
+    } catch(err) {
+      return next(err);
+    }
   }
 
-  function put(req, res) {
-    user = req.user;
+  put = async (req, res, next) => {
+    let user = req.requestedResource;
     user.firstName = req.body.firstName;
     user.lastName = req.body.lastName;
     user.username = req.body.username;
     user.birthDate = req.body.birthDate;
     user.type = req.body.type;
-    user.save((err) => {
-      if (err) { 
-        return res.send(err);
-      }
-      return res.json(user);
-    });
+    try {
+      user = await user.save();
+      return res.status(200).json(user);
+    } catch(err) {
+      return next(err);
+    }
   }
 
-  function patch (req, res) {
-    User.findOneAndUpdate({ _id: req.params.userId }, req.body, { new: true }, (err, user) => {
-      if (err) {
-        return res.send(err);
-      }
-      return res.json(user);
-    });
+  patch = async (req, res, next) => {
+    try {
+      let user = await UserModel.findOneAndUpdate({ _id: req.params.userId }, req.body, { new: true });
+      res.status(201).json(user);
+    } catch(err) {
+      next(err);
+    }
   }
 
-  function deleteUser (req, res) {
-    req.user.remove((err) => {
-      if (err) {
-        return res.send(err);
-      }
-      return res.sendStatus(204);
-    })
+  deleteUser = async (req, res, next) => {
+    try {
+      await req.requestedResource.remove();
+      res.sendStatus(204);
+    } catch(err) {
+      next(err);
+    }
   }
 
-  return { get, getUsers, put, post, patch, deleteUser };
+  return { get, getUser, put, post, patch, deleteUser };
 }
 
 module.exports = usersController;
