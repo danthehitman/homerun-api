@@ -1,6 +1,6 @@
 const uuidv1 = require("uuid/v1");
 
-function tokenController(TokenModel, UserModel, AuthService) {
+function tokenController(TokenModel, AuthService) {
   
   get = async (req, res, next) => {
     const {query} = req;
@@ -12,8 +12,8 @@ function tokenController(TokenModel, UserModel, AuthService) {
     next();
   }
 
-  function getToken(req, res) {
-    return res.send(req.token);
+  function getResource(req, res) {
+    return res.send(req.requestedResource);
   }
 
   post = async (req, res) => {
@@ -21,30 +21,38 @@ function tokenController(TokenModel, UserModel, AuthService) {
       const user = await AuthService.authenticateUser(req.body.username, req.body.password);
       if (user == null)
         res.sendStatus(401);
-      let token = new TokenModel();
-      token.userId = user._id;
-      token.createdDate = new Date();
+      let resource = new TokenModel();
+      resource.userId = user._id;
+      resource.createdDate = new Date();
       let date = new Date();
       date.setDate(date.getDate() + 1);
-      token.expireDate = date;
-      token.token = uuidv1();
-      await token.save();
-      return res.status(201).json(token);
+      resource.expireDate = date;
+      resource.token = uuidv1();
+      await resource.save();
+      return res.status(201).json(resource);
     } catch(err) {
       next(err);
     }
   }
 
-  deleteToken = async (req, res, next) => {
+  put = async (req, res, next) => {
+    res.status(405).send("PUT not supported on /tokens")
+  }
+
+  patch = async (req, res, next) => {
+    res.status(405).send("PATCH not supported on /tokens")
+  }
+
+  deleteResource = async (req, res, next) => {
     try {
-      await req.token.remove();
+      await req.requestedResource.remove();
       return res.sendStatus(204);
     } catch(err) {
       next(err);
     }
   }
 
-  return { get, getToken,post, deleteToken };
+  return { get, getResource, put, post, patch, deleteResource };
 }
 
 module.exports = tokenController;

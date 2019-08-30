@@ -7,15 +7,22 @@ const app = express();
 const db = mongoose.connect('mongodb://localhost/homerun');
 const port = process.env.PORT || 3000;
 
-const User = require('./users/userModel');
-const Token = require('./auth/tokenModel');
+const UserModel = require('./users/userModel');
+const TokenModel = require('./auth/tokenModel');
+const DayModel = require('./days/dayModel');
 
-const authenticator = require("./middleware/authenticationMiddleware")(User, Token);
-const authorizer = require("./middleware/authorizationMiddleware")(User);
+const AuthService = require('./auth/authService')(TokenModel, UserModel);
 
-const userRouter = require('./users/userRouter')(User);
-const AuthService = require('./auth/authService')(Token, User);
-const authRouter = require('./auth/tokenRouter')(Token, User, AuthService);
+const UserController = require('./users/userController')(UserModel);
+const DayController = require('./days/dayController')(DayModel);
+const TokenController = require('./auth/tokenController')(TokenModel, AuthService);
+
+const authenticator = require("./middleware/authenticationMiddleware")(UserModel, TokenModel);
+const authorizer = require("./middleware/authorizationMiddleware")(UserModel);
+
+const userRouter = require('./common/commonRouter')(UserModel, UserController, "users");
+const dayRouter = require('./common/commonRouter')(DayModel, DayController, "days");
+const authRouter = require('./common/commonRouter')(TokenModel, TokenController, "tokens");
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
@@ -24,6 +31,7 @@ app.use(authorizer);
 
 app.use('/api', userRouter);
 app.use('/api', authRouter);
+app.use('/api', dayRouter);
 
 app.get('/', (req, res) => {
   res.send('Welcome');

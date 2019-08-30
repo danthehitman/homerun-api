@@ -8,15 +8,23 @@ const dayModel = new Schema({
     required: 'date is required'
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId
+    type: mongoose.Schema.Types.ObjectId,
+    required: 'userId is required'
   },
-  type: {
-    type: [{
-      type: String,
-      enum: ['teacher', 'student']
-    }],
-    default: ['teacher']
-  }
+  notes: {
+    type: String
+  },
+  items:[{
+      title: String,
+      description: String,
+      notes: String,
+      time: String,
+      scope: {
+        type: String,
+        enum: ['private', 'class'],
+        default: 'private'
+      }
+    }]
 });
 
 module.exports = mongoose.model('day', dayModel);

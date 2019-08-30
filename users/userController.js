@@ -9,30 +9,30 @@ function usersController(UserModel) {
     }
   }
 
-  getUser = async (req, res) => {
+  getResource = async (req, res) => {
     return res.send(req.requestedResource);
   }
 
   post = async (req, res) => {
     try {
-      const user = new UserModel(req.body);
-      user = await user.save();
-      return res.status(201).json(user);
+      const resource = new UserModel(req.body);
+      resource = await resource.save();
+      return res.status(201).json(resource);
     } catch(err) {
       return next(err);
     }
   }
 
   put = async (req, res, next) => {
-    let user = req.requestedResource;
-    user.firstName = req.body.firstName;
-    user.lastName = req.body.lastName;
-    user.username = req.body.username;
-    user.birthDate = req.body.birthDate;
-    user.type = req.body.type;
+    let resource = req.requestedResource;
+    resource.firstName = req.body.firstName;
+    resource.lastName = req.body.lastName;
+    resource.username = req.body.username;
+    resource.birthDate = req.body.birthDate;
+    resource.type = req.body.type;
     try {
-      user = await user.save();
-      return res.status(200).json(user);
+      resource = await resource.save();
+      return res.status(200).json(resource);
     } catch(err) {
       return next(err);
     }
@@ -40,14 +40,14 @@ function usersController(UserModel) {
 
   patch = async (req, res, next) => {
     try {
-      let user = await UserModel.findOneAndUpdate({ _id: req.params.userId }, req.body, { new: true });
-      res.status(201).json(user);
+      let resource = await UserModel.findOneAndUpdate({ _id: req.params.resourceId }, req.body, { new: true });
+      res.status(201).json(resource);
     } catch(err) {
       next(err);
     }
   }
 
-  deleteUser = async (req, res, next) => {
+  deleteResource = async (req, res, next) => {
     try {
       await req.requestedResource.remove();
       res.sendStatus(204);
@@ -56,7 +56,7 @@ function usersController(UserModel) {
     }
   }
 
-  return { get, getUser, put, post, patch, deleteUser };
+  return { get, getResource, put, post, patch, deleteResource };
 }
 
 module.exports = usersController;
