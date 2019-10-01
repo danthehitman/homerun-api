@@ -30,7 +30,7 @@
     "delay": "2500",
     "env": {
       "NODE_ENV": "development",
-      "PORT": 3000
+      "PORT": 3443
     }
   }
 }

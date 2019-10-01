@@ -8,23 +8,13 @@ const dayModel = new Schema({
     required: 'date is required'
   },
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: 'userId is required'
   },
   notes: {
     type: String
   },
-  items:[{
-      title: String,
-      description: String,
-      notes: String,
-      time: String,
-      scope: {
-        type: String,
-        enum: ['private', 'class'],
-        default: 'private'
-      }
-    }]
+  items:[{type: Schema.Types.ObjectId, ref: 'Item'}]
 });
 
 module.exports = mongoose.model('day', dayModel);

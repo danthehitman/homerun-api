@@ -10,11 +10,13 @@ const port = process.env.PORT || 3000;
 const UserModel = require('./users/userModel');
 const TokenModel = require('./auth/tokenModel');
 const DayModel = require('./days/dayModel');
+const ItemModel = require('./items/itemModel');
 
 const AuthService = require('./auth/authService')(TokenModel, UserModel);
 
 const UserController = require('./users/userController')(UserModel);
 const DayController = require('./days/dayController')(DayModel);
+const ItemController = require('./items/itemController')(ItemModel);
 const TokenController = require('./auth/tokenController')(TokenModel, AuthService);
 
 const authenticator = require("./middleware/authenticationMiddleware")(UserModel, TokenModel);
@@ -22,6 +24,7 @@ const authorizer = require("./middleware/authorizationMiddleware")(UserModel);
 
 const userRouter = require('./common/commonRouter')(UserModel, UserController, "users");
 const dayRouter = require('./common/commonRouter')(DayModel, DayController, "days");
+const itemRouter = require('./common/commonRouter')(ItemModel, ItemController, "items");
 const authRouter = require('./common/commonRouter')(TokenModel, TokenController, "tokens");
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -32,6 +35,7 @@ app.use(authorizer);
 app.use('/api', userRouter);
 app.use('/api', authRouter);
 app.use('/api', dayRouter);
+app.use('/api', itemRouter);
 
 app.get('/', (req, res) => {
   res.send('Welcome');
